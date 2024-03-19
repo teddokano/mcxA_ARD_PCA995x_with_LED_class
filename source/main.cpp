@@ -16,14 +16,61 @@ r01lib_start;	/* *** place this word before making instance of r01lib classes **
 constexpr	double	pi		= 3.14159265359;
 constexpr	double	cycle	= 100;
 
-//#define	I2C_DEMO
-#ifdef	I2C_DEMO
+#define	USE_PCA9955B
+#ifdef	USE_PCA9955B
 I2C			i2c;
 PCA9955B	ledd( i2c );
 #else
 SPI			spi;
 PCA9957		ledd( spi );
 #endif
+
+
+#ifdef	USE_PCA9955B
+LED		leds[]	= {
+		LED( ledd,  0 ), LED( ledd,  1 ), LED( ledd,  2 ), LED( ledd,  3 ),
+		LED( ledd,  4 ), LED( ledd,  5 ), LED( ledd,  6 ), LED( ledd,  7 ),
+		LED( ledd,  8 ), LED( ledd,  9 ), LED( ledd, 10 ), LED( ledd, 11 ),
+		LED( ledd, 12 ), LED( ledd, 13 ), LED( ledd, 14 ), LED( ledd, 15 )
+};
+
+int main(void)
+{
+	PRINTF("\r***** Hello, PCA9955B! *****\r\n");
+	I2C_device::scan( i2c, 124 ); //  Scan stop at 124
+	ledd.begin( 1.0, PCA9955B::ARDUINO_SHIELD );
+
+	double	sin0, sin1, sin2, white, cycle_pi;
+	cycle_pi	= pi / cycle;
+
+	int count	= 0;
+
+	while ( true )
+	{
+		if ( !(count++ % 3) )
+			white	= 1.0;
+
+		for ( int i = 0; i < cycle; i++ )
+		{
+			sin0	= sin( (i + 0 * cycle / 3) * cycle_pi );
+			sin1	= sin( (i + 1 * cycle / 3) * cycle_pi );
+			sin2	= sin( (i + 2 * cycle / 3) * cycle_pi );
+			leds[  0 ]	= leds[  3 ]	= leds[  6 ]	= sin0 * sin0;
+			leds[  1 ]	= leds[  4 ]	= leds[  7 ]	= sin1 * sin1;
+			leds[  2 ]	= leds[  5 ]	= leds[  8 ]	= sin2 * sin2;
+
+			leds[  9 ]	= leds[ 10 ]	= leds[ 11 ]	= white;
+			leds[ 12 ]	= leds[ 13 ]	= leds[ 14 ]	= white;
+			leds[ 15 ]									= white;
+			
+			white	*= 0.9;
+
+			wait( 0.01 );
+		}
+	}
+}
+
+#else  // USE_PCA9955B
 
 LED		leds[]	= {
 		LED( ledd,  0 ), LED( ledd,  1 ), LED( ledd,  2 ), LED( ledd,  3 ),
@@ -36,14 +83,8 @@ LED		leds[]	= {
 
 int main(void)
 {
-	PRINTF("\r***** Hello, PCA9955B! *****\r\n");
-
-#ifdef	I2C_DEMO
-	I2C_device::scan( i2c, 124 ); //  Scan stop at 124
-	ledd.begin( 1.0, PCA9955B::ARDUINO_SHIELD );
-#else
+	PRINTF("\r***** Hello, PCA9957! *****\r\n");
 	ledd.begin( 1.0, PCA9957::ARDUINO_SHIELD );
-#endif
 
 	double	sin0, sin1, sin2, white, cycle_pi;
 	cycle_pi	= pi / cycle;
@@ -74,3 +115,5 @@ int main(void)
 		}
 	}
 }
+
+#endif // USE_PCA9955B
