@@ -18,10 +18,10 @@ constexpr	double	cycle	= 100;
 
 #define	USE_PCA9955B
 #ifdef	USE_PCA9955B
-I2C			i2c;
+I2C			i2c( I2C_SDA, I2C_SCL );	//	SDA, SCL
 PCA9955B	ledd( i2c );
 #else
-SPI			spi;
+SPI			spi( D11, D12, D13, D10 );	//	MOSI, MISO, SCLK, CS
 PCA9957		ledd( spi );
 #endif
 
