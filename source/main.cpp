@@ -6,8 +6,6 @@
  */
 
 #include	"r01lib.h"
-r01lib_start;	/* *** place this word before making instance of r01lib classes *** */
-
 #include	"led/PCA9955B.h"
 #include	"led/PCA9957.h"
 #include	"led/LED.h"
